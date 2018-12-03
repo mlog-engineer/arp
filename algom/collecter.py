@@ -109,15 +109,15 @@ def get_rpt_from_awc(icao,kind='metar'):
     req = urllib.request.Request(url)
     header = random_header()
     req.add_header('User-Agent',header)
-    save_web(req,'./web.html')
-    rpt = parse_rpt('./web.html',kind)
+    save_web(req,'./{}.html'.format(kind))
+    rpt = parse_rpt('./{}.html'.format(kind),kind)
     if rpt and kind == 'metar':
         rpt = ' '.join([kind.upper(),rpt])
     try:
         rpt = rpt.replace('<br/>&nbsp;&nbsp;','')
     except AttributeError:
         pass
-    os.remove('./web.html')
+    os.remove('./{}.html'.format(kind))
     return rpt
 
 
