@@ -15,10 +15,9 @@ with open('../config.json') as f:
     config = js.load(f)
 
 LOG_PATH = config['metar']['log_path']
-
 logger = logging.getLogger('root')
 
-
+# 目前在AWC中可以查询到的机场范围
 icaos = ['ZBAA', 'ZBTJ', 'ZBSJ', 'ZBYN', 'ZBHH', 'ZYTX', 'ZYTL', 'ZYCC', 'ZYHB',
          'ZSSS','ZSPD', 'ZSNJ', 'ZSOF', 'ZSHC', 'ZSNB', 'ZSFZ', 'ZSAM', 'ZSJN',
          'ZSQD', 'ZHHH', 'ZHCC', 'ZGHA', 'ZGGG', 'ZGOW', 'ZGSZ', 'ZGNN', 'ZGKL',
@@ -123,6 +122,17 @@ def get_rpt_from_awc(icao,kind='metar'):
 
 
 def get_rpts(kind='metar'):
+    '''批量获取航空报文
+
+    输入参数
+    -------
+    kind : `str`
+        报文类型，可供选择的选项为:'metar'和'taf'
+
+    返回值
+    -----
+    `dict` : 以ICAO码为键，以报文内容为值的字典
+    '''
     rpts = {}
     total = len(icaos)
     for n,icao in enumerate(icaos):

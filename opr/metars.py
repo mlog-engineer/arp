@@ -46,14 +46,14 @@ def main():
             pfn = REALTIME_PATH + 'last_metar.json'
             save_json(metars,pfn)
             print('{}: saved in real time dir'.format(datetime.utcnow()))
-            logger.info('saved in real time dir.')
+            logger.info(' saved in real time dir.')
 
             today = utcnow.strftime('%Y%m%d')
             check_dirs(ARCHIVE_PATH+today)
             pfn = ARCHIVE_PATH+today+'/'+get_save_name(utcnow)+'.json'
             save_json(metars,pfn)
             print('{}: saved in archive dir'.format(datetime.utcnow()))
-            logger.info('saved in archive dir.')
+            logger.info(' saved in archive dir.')
 
             time.sleep(60)
         else:
