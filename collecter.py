@@ -1,11 +1,31 @@
-
 # coding: utf-8
 import urllib.request
 import urllib.parse
 import random
 
 def get_rpt_from_awc(icao,buffer,kind='metar'):
-    '''按机场ICAO码获取报文，数据来自 AWC: https://aviationweather.gov/'''
+    '''按机场ICAO码获取报文，数据来自 AWC: https://aviationweather.gov/
+
+    输入参数
+    -------
+    icao : `str`
+        所要查询的机场ICAO码，如'ZBAA'、'ZUUU'
+    buffer : `str`
+        暂存目录路径，程序将把目标网页下载到该目录下，再读取解析
+        注意，路径末尾须带有斜杠，例如 : '/home/buffer/'
+    kind : `str`
+        报文类型，须在'metar'和'taf'中选择，默认为'metar'
+
+    返回值
+    -----
+    `str` : 目标机场最新的航空报文
+
+    示例
+    ---
+    >>> from collecter import get_rpt_from_awc
+    >>> get_rpt_from_awc('ZBAA','./','metar')
+    'METAR ZBAA 030400Z 03005MPS 340V070 CAVOK 07/M21 Q1026 NOSIG'
+    '''
     def random_header():
         header_list = [
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv2.0.1) Gecko/20100101 Firefox/4.0.1",
@@ -67,4 +87,3 @@ def get_rpt_from_awc(icao,buffer,kind='metar'):
 
 if __name__ == '__main__':
     get_rpt_from_awc('ZBAA',kind='metar')
-
