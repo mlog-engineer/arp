@@ -14,7 +14,6 @@ import logging
 with open('../config.json') as f:
     config = js.load(f)
 
-LOG_PATH = config['metar']['log_path']
 logger = logging.getLogger('root')
 
 # 目前在AWC中可以查询到的机场范围
