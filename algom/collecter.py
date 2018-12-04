@@ -18,11 +18,12 @@ LOG_PATH = config['metar']['log_path']
 logger = logging.getLogger('root')
 
 # 目前在AWC中可以查询到的机场范围
-icaos = ['ZBAA', 'ZBTJ', 'ZBSJ', 'ZBYN', 'ZBHH', 'ZYTX', 'ZYTL', 'ZYCC', 'ZYHB',
-         'ZSSS','ZSPD', 'ZSNJ', 'ZSOF', 'ZSHC', 'ZSNB', 'ZSFZ', 'ZSAM', 'ZSJN',
-         'ZSQD', 'ZHHH', 'ZHCC', 'ZGHA', 'ZGGG', 'ZGOW', 'ZGSZ', 'ZGNN', 'ZGKL',
-         'ZJHK', 'ZJSY', 'ZUCK','ZUUU', 'ZPPP', 'ZLXY', 'ZLLL', 'ZWWW', 'ZWSH',
-         'VHHH', 'VMMC', 'ZUGY', 'RCSS','RCKH', 'RCTP']
+icaos = ['ZBAA', 'ZBTJ', 'ZBSJ', 'ZBYN', 'ZBHH', 'ZYTX', 'ZYTL',
+         'ZYCC', 'ZYHB', 'ZSSS', 'ZSPD', 'ZSNJ', 'ZSOF', 'ZSHC',
+         'ZSNB', 'ZSFZ', 'ZSAM', 'ZSQD', 'ZHHH', 'ZHCC', 'ZGHA',
+         'ZGGG', 'ZGOW', 'ZGSZ', 'ZGNN', 'ZGKL', 'ZJHK', 'ZJSY',
+         'ZUCK', 'ZUUU', 'ZPPP', 'ZLXY', 'ZLLL', 'ZWWW', 'ZWSH',
+         'VHHH', 'VMMC', 'ZUGY', 'RCSS', 'RCKH', 'RCTP']
 
 
 def get_rpt_from_awc(icao,kind='metar'):
@@ -74,9 +75,13 @@ def get_rpt_from_awc(icao,kind='metar'):
             web_code = urllib.request.urlopen(req).read()
         except Exception as e:
             print('{0}: error: {1}'.format(datetime.utcnow(),e))
-            logger.error('error: '+e)
-        with open(savepfn,'wb') as fh:
-            fh.write(web_code)
+            logger.error(' error: '+e)
+        if web_code:
+            with open(savepfn,'wb') as fh:
+                fh.write(web_code)
+        else:
+            print('{}: failed to download web code'.format(datetime.utcnow()))
+            logger.info(' failed to download web code')
 
     def parse_rpt(pfn,kind='metar'):
         with open(pfn) as f:
