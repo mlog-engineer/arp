@@ -33,21 +33,21 @@ arp-collecter 是一个可以实时抓取航空METAR和TAF报文的小型模块�
 
 ## 使用方法
 ### 单个机场查询
-对于单个机场信息的查询，按以下示例查询
-`$ python collecter.py ZBAA metar`
-该命令是查询机场ZBAA（首都国际机场）的最新METAR报文
-同理，若要查询首都机场的最新TAF报文，可以执行
-`$ python collecter.py ZBAA taf`
+对于单个机场信息的查询，按以下示例查询   
+`$ python collecter.py ZBAA metar`   
+该命令是查询机场ZBAA（首都国际机场）的最新METAR报文   
+同理，若要查询首都机场的最新TAF报文，可以执行   
+`$ python collecter.py ZBAA taf`   
 
 ### 自动化实时爬取
-若想要自动化实时爬取并保存METAR报文数据，可以执行
-`$ python oparp.py metar`
-或者在服务器上后台运行
-`$ nohup python oparp.py metar &`
-同理要爬取TAF报文只需将`metar`换为`taf`即可。
+若想要自动化实时爬取并保存METAR报文数据，可以执行   
+`$ python oparp.py metar`   
+或者在服务器上后台运行   
+`$ nohup python oparp.py metar &`   
+同理要爬取TAF报文只需将`metar`换为`taf`即可。   
 执行该命令以后，程序将按照配置文件`config.json`中的设置，爬取机场列表里所有机场的METAR报文，并将结果以`.json`的格式保存在`realtime_path`和`archive_path`路径下。
 #### 实时文件
-`realtime_path`路径中保存有两个文件：`all_metars.json`和`updated_metars.json`，其中`all_metars.json`保存有所有机场的最新一次返回的报文，`updated_metars.json`保存的是最新一次查询相较于上一次查询所更新的机场的报文信息。
+`realtime_path`路径中保存有两个文件：`all_metars.json`和`updated_metars.json`，其中`all_metars.json`保存有所有机场的最新一次返回的报文，`updated_metars.json`保存的是最新一次查询相较于上一次查询所更新的机场的报文信息。   
 例如某个时次`all_metars.json`中保存的信息：   
 ```json
 { "ZBAA": "METAR ZBAA 050230Z 08002MPS 040V120 CAVOK M01/M14 Q1031 NOSIG",
@@ -96,8 +96,8 @@ arp-collecter 是一个可以实时抓取航空METAR和TAF报文的小型模块�
 ```json
 {"VHHH": "METAR VHHH 050300Z 09017KT 9999 FEW015 SCT025 26/20 Q1017 NOSIG"}
 ```
-这也就是说在最新一次返回的数据中只有VHHH这个机场的报文更新了，`updated_metars.json`文件就只保存这个更新的报文。而`all_metars.json`保存所有机场的报文，若最新一个时次某机场并未更新，则该机场在`all_metars.json`中会保存上一时次的报文。
-爬虫程序将每隔5分钟查询一次，若所有机场的报文都没有更新，则`all_metars.json`，`updated_metars.json`都不会被重写，否则两个文件都会被重写一遍。
+这也就是说在最新一次返回的数据中只有VHHH这个机场的报文更新了，`updated_metars.json`文件就只保存这个更新的报文。而`all_metars.json`保存所有机场的报文，若最新一个时次某机场并未更新，则该机场在`all_metars.json`中会保存上一时次的报文。   
+爬虫程序将每隔5分钟查询一次，若所有机场的报文都没有更新，则`all_metars.json`，`updated_metars.json`都不会被重写，否则两个文件都会被重写一遍。   
 #### 归档文件
 最新报文除了会在`updated_metars.json`中不断重写，也会归档保存在`archive_path`目录中，该目录将以日期为文件夹来归档保存，每个文件为最新查询时间，例如`201812050135.json`
 
@@ -150,7 +150,7 @@ arp-collecter 是一个可以实时抓取航空METAR和TAF报文的小型模块�
 2018-12-05 02:16:54,983:INFO: (40/41) RCKH finished
 2018-12-05 02:16:57,848:INFO: (41/41) RCTP finished
 ```
-若机场有报文更新，则日志中将提供记录
+若机场有报文更新，则日志中将提供记录   
 ```
 2018-12-05 02:16:59,849:INFO: ZBAA is updated
 2018-12-05 02:16:59,849:INFO: ZBTJ is updated
