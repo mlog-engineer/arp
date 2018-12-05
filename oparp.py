@@ -141,12 +141,12 @@ def main():
             # 若有更新的报文存在，则将其保存，并更新all文件
             if rpts_new:
                 save_json(rpts_new,pfn_new)
-                print('{}: saved in real time dir'.format(datetime.utcnow()))
-                logger.info(' saved in real time dir')
+                print('{}: updated updated_metars.json'.format(datetime.utcnow()))
+                logger.info(' updated updated_metars.json')
 
                 update_all(rpts_download,kind)
-                print('{}: updated all record'.format(datetime.utcnow()))
-                logger.info(' updated all record')
+                print('{}: updated all_metars.json'.format(datetime.utcnow()))
+                logger.info(' updated all_metars.json')
 
                 today = utcnow.strftime('%Y%m%d')
                 check_dirs(ARCHIVE_PATH+today)
