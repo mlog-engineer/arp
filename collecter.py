@@ -1,7 +1,5 @@
 # coding: utf-8
 import sys
-sys.path.append('..')
-
 import urllib.request
 import urllib.parse
 import os
@@ -11,18 +9,8 @@ import time
 from datetime import datetime
 import logging
 
-with open('../config.json') as f:
-    config = js.load(f)
 
 logger = logging.getLogger('root')
-
-# 目前在AWC中可以查询到的机场范围
-icaos = ['ZBAA', 'ZBTJ', 'ZBSJ', 'ZBYN', 'ZBHH', 'ZYTX', 'ZYTL',
-         'ZYCC', 'ZYHB', 'ZSSS', 'ZSPD', 'ZSNJ', 'ZSOF', 'ZSHC',
-         'ZSNB', 'ZSFZ', 'ZSAM', 'ZSQD', 'ZHHH', 'ZHCC', 'ZGHA',
-         'ZGGG', 'ZGOW', 'ZGSZ', 'ZGNN', 'ZGKL', 'ZJHK', 'ZJSY',
-         'ZUCK', 'ZUUU', 'ZPPP', 'ZLXY', 'ZLLL', 'ZWWW', 'ZWSH',
-         'VHHH', 'VMMC', 'ZUGY', 'RCSS', 'RCKH', 'RCTP']
 
 
 def get_rpt_from_awc(icao,kind='metar'):
@@ -74,13 +62,16 @@ def get_rpt_from_awc(icao,kind='metar'):
             web_code = urllib.request.urlopen(req).read()
         except Exception as e:
             print('{0}: error: {1}'.format(datetime.utcnow(),e))
-            logger.error(' error: '+e)
+            logger.error(' error: {}'.format(e))
+            return False
         if web_code:
             with open(savepfn,'wb') as fh:
                 fh.write(web_code)
+            return True
         else:
             print('{}: failed to download web code'.format(datetime.utcnow()))
             logger.info(' failed to download web code')
+            return False
 
     def parse_rpt(pfn,kind='metar'):
         with open(pfn) as f:
@@ -113,8 +104,11 @@ def get_rpt_from_awc(icao,kind='metar'):
     req = urllib.request.Request(url)
     header = random_header()
     req.add_header('User-Agent',header)
-    save_web(req,'./{}.html'.format(kind))
-    rpt = parse_rpt('./{}.html'.format(kind),kind)
+    saved_finished = save_web(req,'./{}.html'.format(kind))
+    if saved_finished:
+        rpt = parse_rpt('./{}.html'.format(kind),kind)
+    else:
+        return None
     if rpt and kind == 'metar':
         rpt = ' '.join([kind.upper(),rpt])
     try:
@@ -125,7 +119,7 @@ def get_rpt_from_awc(icao,kind='metar'):
     return rpt
 
 
-def get_rpts(kind='metar'):
+def get_rpts(icaos,kind='metar'):
     '''批量获取航空报文
 
     输入参数
@@ -143,12 +137,17 @@ def get_rpts(kind='metar'):
         rpt = get_rpt_from_awc(icao,kind=kind)
         if rpt:
             rpts[icao] = rpt
-        print('{0}: ({2}/{3}) {1}'.format(datetime.utcnow(),
-                                                  icao,n+1,total))
-        logger.info('  ({1}/{2}) {0}'.format(icao,n+1,total))
+            print('{0}: ({2}/{3}) {1} finished'.format(datetime.utcnow(),
+                                                      icao,n+1,total))
+            logger.info(' ({1}/{2}) {0} finished'.format(icao,n+1,total))
+        else:
+            print('{0}: ({2}/{3}) {1} missing'.format(datetime.utcnow(),
+                                                      icao,n+1,total))
+            logger.info(' ({1}/{2}) {0} missing'.format(icao,n+1,total))
         time.sleep(2)
     return rpts
 
 
 if __name__ == '__main__':
-    get_rpt_from_awc('ZBAA',kind='metar')
+    icao, kind = sys.argv[1], sys.argv[2]
+    print(get_rpt_from_awc(icao,kind=kind))

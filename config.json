@@ -1,0 +1,18 @@
+{
+  "metar":{
+    "log_path":"./data/metar/log/",
+    "archive_path":"./data/metar/archive/",
+    "realtime_path":"./data/metar/realtime/"
+  },
+  "taf":{
+    "log_path":"./data/taf/log/",
+    "archive_path":"./data/taf/archive/",
+    "realtime_path":"./data/taf/realtime/"
+  },
+  "ICAOS":["ZBAA", "ZBTJ", "ZBSJ", "ZBYN", "ZBHH", "ZYTX", "ZYTL",
+           "ZYCC", "ZYHB", "ZSSS", "ZSPD", "ZSNJ", "ZSOF", "ZSHC",
+           "ZSNB", "ZSFZ", "ZSAM", "ZSQD", "ZHHH", "ZHCC", "ZGHA",
+           "ZGGG", "ZGOW", "ZGSZ", "ZGNN", "ZGKL", "ZJHK", "ZJSY",
+           "ZUCK", "ZUUU", "ZPPP", "ZLXY", "ZLLL", "ZWWW", "ZWSH",
+           "VHHH", "VMMC", "ZUGY", "RCSS", "RCKH", "RCTP"]
+}

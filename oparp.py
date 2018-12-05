@@ -11,34 +11,37 @@ $ python oparp.py metar
 $ python oparp.py taf
 '''
 import sys
-sys.path.append('..')
-
 import os
 import time
 import json as js
 from datetime import datetime
 import traceback
-import algom.collecter as clt
+import collecter as clt
 
 # 获取报文类型
 kind = sys.argv[1]
 
 # 加载配置信息
-with open('../config.json') as f:
+with open('./config.json') as f:
     config = js.load(f)
 LOG_PATH = config[kind]['log_path']
 ARCHIVE_PATH = config[kind]['archive_path']
 REALTIME_PATH = config[kind]['realtime_path']
-
-# 初始化日志
-import opr.log as log
-logger = log.setup_custom_logger(LOG_PATH+kind,'root')
+ICAOS = config['ICAOS']
 
 
 def check_dirs(path):
     '''检查目录是否存在，若不存在则予以创建'''
     if not os.path.exists(path):
         os.makedirs(path)
+check_dirs(LOG_PATH)
+check_dirs(ARCHIVE_PATH)
+check_dirs(REALTIME_PATH)
+
+
+# 初始化日志
+import log
+logger = log.setup_custom_logger(LOG_PATH+kind,'root')
 
 
 def save_json(rpts,pfn):
@@ -117,7 +120,7 @@ def main():
     while True:
         utcnow = datetime.utcnow()
         # 每隔5分钟爬取一次
-        if utcnow.minute in (0,5,15,20,25,30,35,40,45,50,55):
+        if utcnow.minute in range(0,60,5):
             print('{}: start crawling'.format(datetime.utcnow()))
             logger.info(' start crawling')
             # all文件存储该时次所有已更新和未更新的报文，每一次扫描通过对比all文件判断
@@ -126,17 +129,11 @@ def main():
             pfn_all = REALTIME_PATH + 'all_{}s.json'.format(kind)
             # 若首次启动程序，确守all文件，则初始化该文件，将值定义为空
             if not os.path.exists(pfn_all):
-                icaos = ['ZBAA', 'ZBTJ', 'ZBSJ', 'ZBYN', 'ZBHH', 'ZYTX', 'ZYTL',
-                         'ZYCC', 'ZYHB', 'ZSSS', 'ZSPD', 'ZSNJ', 'ZSOF', 'ZSHC',
-                         'ZSNB', 'ZSFZ', 'ZSAM', 'ZSQD', 'ZHHH', 'ZHCC', 'ZGHA',
-                         'ZGGG', 'ZGOW', 'ZGSZ', 'ZGNN', 'ZGKL', 'ZJHK', 'ZJSY',
-                         'ZUCK', 'ZUUU', 'ZPPP', 'ZLXY', 'ZLLL', 'ZWWW', 'ZWSH',
-                         'VHHH', 'VMMC', 'ZUGY', 'RCSS', 'RCKH', 'RCTP']
-                rpts_init = dict(zip(icaos,['']*len(icaos)))
+                rpts_init = dict(zip(ICAOS,['']*len(ICAOS)))
                 save_json(rpts_init,pfn_all)
 
             # 爬取报文内容
-            rpts_download = clt.get_rpts(kind)
+            rpts_download = clt.get_rpts(ICAOS,kind)
 
             # 剔除重复报文
             rpts_new = drop_duplication(rpts_download,kind)
@@ -163,9 +160,10 @@ def main():
 
             time.sleep(60)
         else:
-            print('{}: not process point, delaying'.format(datetime.utcnow()))
-            time.sleep(2)
-            
+            print('{}: sleeping'.format(datetime.utcnow()))
+            logger.info(' sleeping')
+            time.sleep(10)
+
 
 if __name__ == '__main__':
     try:
