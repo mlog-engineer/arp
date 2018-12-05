@@ -196,7 +196,7 @@ arp-collecter 是一个可以实时抓取航空METAR和TAF报文的小型模块�
 ```
 查询结束以后将记录保存和归档情况    
 `2018-12-05 02:16:59,854:INFO: updated updated_metars.json`表示`updated_metars.json`文件已更新    
-`2018-12-05 02:16:59,854:INFO: updated all_metars.json`表示`updated all_metars.json`文件已更新   
+`2018-12-05 02:16:59,854:INFO: updated all_metars.json`表示`all_metars.json`文件已更新   
 `2018-12-05 02:16:59,855:INFO: archived`表示新文件已归档     
 若最新查询结果并无新的变化，则日志将提示   
 `2018-12-05 02:22:06,138:INFO: last time is not updated`   
