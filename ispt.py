@@ -4,10 +4,11 @@ import os
 from collecter import get_rpt_from_awc
 import time
 
-if not os.path.exists('./ispt_list.json'):
+if not os.path.exists('./airports.json'):
     print('can\'t find ispt_list.json file')
+    exit()
 else:
-    with open('./ispt_list.json') as f:
+    with open('./airports.json') as f:
         airports = js.load(f)
 
 def main():

@@ -44,7 +44,7 @@ inspecting ZBNY
 invalid
 ```
 程序结束以后会将结果保存在`ispt_result.json`文件内   
-```
+```json
 {"valid": ["ZBAA"], "invalid": ["ZBNY"]}
 ```
 
