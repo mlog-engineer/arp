@@ -27,9 +27,26 @@ arp-collecter 是一个可以实时抓取航空METAR和TAF报文的小型模块�
 其中log_path是日志保存路径、archive_path是归档路径、realtime_path是实时更新保存路径、ICAOS是所要爬取的机场列表，机场名使用ICAO码。
 三个路径可以随意配置，若路径不存在则程序会自动创建。
 机场列表默认为中国（包含港澳台）41个国际机场。这41个机场是AWC数据库里有的机场，其他小型国内机场的报文信息在该数据库中查询不到，因此该列表中不予收录。若机场列表中收录了数据库中没有的机场码，爬虫程序仍然可以运行，但是会影响爬取速度，所以建议在修改机场列表之前，先确认该机场的报文信息在AWC数据库中有收录。
-查询方法：
-进入AWC的METAR检索页面：https://aviationweather.gov/metar
-在Request METAR data下面的IDs输入你想要查询的机场ICAO码，点击Get METAR data，若更新的页面中有显示METAR报文，则说明该机场的报文信息存在于AWC数据库。
+### 机场有效性检查
+本模块包提供了对机场是否存在于AWC数据库进行检查的程序   
+首先编辑`airports.json`文件，例如我要检查的机场代码为`ZBAA`（首都机场）和`ZBNY`（南苑机场），则在`airports.json`文件内写入：   
+```json
+[
+  "ZBAA", "ZBNY"
+]
+```
+若要增加其他机场，则可以在该列表后面按相应格式追加   
+编辑完成以后执行`python ispt.py`，屏幕上会打印出每个机场的检验结果，valid表示有效，invalid表示无效   
+```
+inspecting ZBAA
+valid
+inspecting ZBNY
+invalid
+```
+程序结束以后会将结果保存在`ispt_result.json`文件内   
+```
+{"valid": ["ZBAA"], "invalid": ["ZBNY"]}
+```
 
 ## 使用方法
 ### 单个机场查询
