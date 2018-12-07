@@ -44,7 +44,7 @@ import log
 logger = log.setup_custom_logger(LOG_PATH+kind,'root')
 
 
-def save_json(rpts,pfn):
+def save_json(rpts,pfn,mod='old'):
     '''保存json文件
 
     输入参数
@@ -59,9 +59,17 @@ def save_json(rpts,pfn):
     -----
     `None`
     '''
-    js_context = js.dumps(rpts)
-    with open(pfn,'w') as f:
-        f.write(js_context)
+    if mod == 'old':
+        # js_context = js.dumps(rpts)
+        with open(pfn,'w') as f:
+            # f.write(js_context)
+            js.dump(rpts,f,indent=4)
+    elif mod == 'new':
+        new_rpts = [{'NAME':k,'DATA':rpts[k]} for k in rpts]
+        # js_context = js.dumps(new_rpts)
+        with open(pfn,'w') as f:
+            # f.write(js_context)
+            js.dump(new_rpts,f,indent=4)
 
 
 def get_save_name(utcnow):
@@ -140,7 +148,7 @@ def main():
 
             # 若有更新的报文存在，则将其保存，并更新all文件
             if rpts_new:
-                save_json(rpts_new,pfn_new)
+                save_json(rpts_new,pfn_new,mod='new')
                 print('{}: updated updated_metars.json'.format(datetime.utcnow()))
                 logger.info(' updated updated_metars.json')
 
@@ -151,7 +159,7 @@ def main():
                 today = utcnow.strftime('%Y%m%d')
                 check_dirs(ARCHIVE_PATH+today)
                 pfn = ARCHIVE_PATH+today+'/'+get_save_name(utcnow)+'.json'
-                save_json(rpts_new,pfn)
+                save_json(rpts_new,pfn,mod='new')
                 print('{}: archived'.format(datetime.utcnow()))
                 logger.info(' archived')
             else:
