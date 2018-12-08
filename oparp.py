@@ -27,6 +27,7 @@ with open('./config.json') as f:
 LOG_PATH = config[kind]['log_path']
 ARCHIVE_PATH = config[kind]['archive_path']
 REALTIME_PATH = config[kind]['realtime_path']
+BUFFER_PATH = config[kind]['buffer_path']
 ICAOS = config['ICAOS']
 
 
@@ -37,6 +38,7 @@ def check_dirs(path):
 check_dirs(LOG_PATH)
 check_dirs(ARCHIVE_PATH)
 check_dirs(REALTIME_PATH)
+check_dirs(BUFFER_PATH)
 
 
 # 初始化日志
@@ -89,7 +91,7 @@ def drop_duplication(rpts,kind):
     -----
     `dict` : 经过与前一时次报文文件的对比，清除了重复（未更新）报文后的报文字典
     '''
-    with open(REALTIME_PATH+'all_{}s.json'.format(kind)) as f:
+    with open(BUFFER_PATH+'all_{}s.json'.format(kind)) as f:
         pre_rpts = js.load(f)
 
     keys = list(rpts.keys())
@@ -112,7 +114,7 @@ def update_all(rpts,kind):
     kind : `str`
         报文类型
     '''
-    with open(REALTIME_PATH+'all_{}s.json'.format(kind)) as f:
+    with open(BUFFER_PATH+'all_{}s.json'.format(kind)) as f:
         pre_rpts = js.load(f)
     for k in pre_rpts:
         try:
@@ -121,7 +123,7 @@ def update_all(rpts,kind):
         except KeyError as e:
             pass
 
-    save_json(pre_rpts,REALTIME_PATH+'all_{}s.json'.format(kind))
+    save_json(pre_rpts,BUFFER_PATH+'all_{}s.json'.format(kind))
 
 
 def main():
@@ -134,8 +136,8 @@ def main():
             # all文件存储该时次所有已更新和未更新的报文，每一次扫描通过对比all文件判断
             #    报文是否更新
             pfn_new = REALTIME_PATH + 'updated_{}s.json'.format(kind)
-            pfn_all = REALTIME_PATH + 'all_{}s.json'.format(kind)
-            # 若首次启动程序，确守all文件，则初始化该文件，将值定义为空
+            pfn_all = BUFFER_PATH + 'all_{}s.json'.format(kind)
+            # 若首次启动程序，缺少all文件，则初始化该文件，将值定义为空
             if not os.path.exists(pfn_all):
                 rpts_init = dict(zip(ICAOS,['']*len(ICAOS)))
                 save_json(rpts_init,pfn_all)
@@ -149,12 +151,13 @@ def main():
             # 若有更新的报文存在，则将其保存，并更新all文件
             if rpts_new:
                 save_json(rpts_new,pfn_new,mod='new')
-                print('{}: updated updated_metars.json'.format(datetime.utcnow()))
-                logger.info(' updated updated_metars.json')
+                print('{0}: updated updated_{1}s.json'.format(datetime.utcnow(),
+                                                             kind))
+                logger.info(' updated updated_{0}s.json'.format(kind))
 
                 update_all(rpts_download,kind)
-                print('{}: updated all_metars.json'.format(datetime.utcnow()))
-                logger.info(' updated all_metars.json')
+                print('{0}: updated all_{1}s.json'.format(datetime.utcnow(),kind))
+                logger.info(' updated all_{0}s.json'.format(kind))
 
                 today = utcnow.strftime('%Y%m%d')
                 check_dirs(ARCHIVE_PATH+today)
