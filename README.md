@@ -6,16 +6,16 @@ arp-collecter 是一个可以实时抓取航空METAR和TAF报文的小型模块�
 ```json
 {
   "metar":{
-    "log_path":"/mnt/data14/liwt/opr/metar/log/",
-    "archive_path":"/mnt/data14/liwt/opr/metar/archive/",
-    "buffer_path":"/mnt/data14/liwt/opr/metar/buffer/",
-    "realtime_path":"/mnt/data14/liwt/opr/metar/realtime/"
+    "log_path":"./data/metar/log/",
+    "archive_path":"./data/metar/archive/",
+    "buffer_path":"./data/metar/buffer/",
+    "realtime_path":"./data/metar/realtime/"
   },
   "taf":{
-    "log_path":"/mnt/data14/liwt/opr/taf/log/",
-    "archive_path":"/mnt/data14/liwt/opr/taf/archive/",
-    "buffer_path":"/mnt/data14/liwt/opr/taf/buffer/",
-    "realtime_path":"/mnt/data14/liwt/opr/taf/realtime/"
+    "log_path":"./data/taf/log/",
+    "archive_path":"./data/taf/archive/",
+    "buffer_path":"./data/taf/buffer/",
+    "realtime_path":"./data/taf/realtime/"
   },
   "ICAOS":["ZBAA", "ZBTJ", "ZBSJ", "ZBYN", "ZBHH", "ZYTX", "ZYTL",
            "ZYCC", "ZYHB", "ZSSS", "ZSPD", "ZSNJ", "ZSOF", "ZSHC",
