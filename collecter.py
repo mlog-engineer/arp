@@ -64,7 +64,12 @@ def get_rpt_from_awc(icao,kind='metar'):
         req = urllib.request.Request(url)
         header = random_header()
         req.add_header('User-Agent',header)
-        web_code = urllib.request.urlopen(req).read().decode('utf-8')
+        try:
+            web_code = urllib.request.urlopen(req).read().decode('utf-8')
+        except KeyboardInterrupt:
+            exit()
+        except:
+            web_code = None
         return web_code
 
 
@@ -86,7 +91,10 @@ def get_rpt_from_awc(icao,kind='metar'):
 
     url = get_url(icao,kind)
     web_code = get_web_code(url)
-    rpt = parse_rpt(web_code,kind)
+    if web_code:
+        rpt = parse_rpt(web_code,kind)
+    else:
+        rpt = None
 
     return rpt
 
@@ -122,4 +130,4 @@ def get_rpts(icaos,kind='metar'):
 
 if __name__ == '__main__':
     icao, kind = sys.argv[1], sys.argv[2]
-    print(get_rpt_from_awc(icao,kind=kind))
+    print(get_rpt_from_awc(icao,kind))
