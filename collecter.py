@@ -77,8 +77,11 @@ def get_rpt_from_awc(icao,kind='metar'):
         metar_pattern = '[A-Z]{4} \d{6}Z [0-9A-Z\s/]+'
         taf_pattern = 'TAF [A-Z]{4} \d{6}Z[0-9A-Z\s/]+'
         if kind == 'metar':
+            head_pattern = '<metar_type>[A-Z]+</metar_type>'
+            head_line = re.search(head_pattern,web_code).group()
+            head = re.search('[A-Z]+', head_line).group()
             try:
-                rpt = 'METAR '+re.search(metar_pattern,web_code).group()
+                rpt = head+' '+re.search(metar_pattern,web_code).group()
             except AttributeError:
                 rpt = None
         elif kind == 'taf':
