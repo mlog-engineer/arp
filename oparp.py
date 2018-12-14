@@ -62,15 +62,11 @@ def save_json(rpts,pfn,mod='old'):
     `None`
     '''
     if mod == 'old':
-        # js_context = js.dumps(rpts)
         with open(pfn,'w') as f:
-            # f.write(js_context)
             js.dump(rpts,f,indent=4)
     elif mod == 'new':
         new_rpts = [{'NAME':k,'DATA':rpts[k]} for k in rpts]
-        # js_context = js.dumps(new_rpts)
         with open(pfn,'w') as f:
-            # f.write(js_context)
             js.dump(new_rpts,f,indent=4)
 
 

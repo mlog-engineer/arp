@@ -6,6 +6,7 @@ import os
 import random
 import json as js
 import time
+import re
 from datetime import datetime
 import logging
 
@@ -52,70 +53,41 @@ def get_rpt_from_awc(icao,kind='metar'):
         return random.choice(header_list)
 
     def get_url(icao,kind):
-        if kind == 'metar':
-            return 'https://aviationweather.gov/metar/data?ids='+icao
-        elif kind == 'taf':
-            return 'https://aviationweather.gov/taf/data?ids='+icao
+        url = 'https://aviationweather.gov/adds/'\
+              'dataserver_current/httpparam?'\
+              'dataSource={0}s&requestType=retrieve&format=xml'\
+              '&stationString={1}&hoursBeforeNow=2'\
+              '&mostRecent=true'.format(kind,icao)
+        return url
 
-    def save_web(req,savepfn):
-        try:
-            web_code = urllib.request.urlopen(req).read()
-        except Exception as e:
-            print('{0}: error: {1}'.format(datetime.utcnow(),e))
-            logger.error(' error: {}'.format(e))
-            return False
-        if web_code:
-            with open(savepfn,'wb') as fh:
-                fh.write(web_code)
-            return True
-        else:
-            print('{}: failed to download web code'.format(datetime.utcnow()))
-            logger.info(' failed to download web code')
-            return False
+    def get_web_code(url):
+        req = urllib.request.Request(url)
+        header = random_header()
+        req.add_header('User-Agent',header)
+        web_code = urllib.request.urlopen(req).read().decode('utf-8')
+        return web_code
 
-    def parse_rpt(pfn,kind='metar'):
-        with open(pfn) as f:
-            content = f.readlines()
+
+    def parse_rpt(web_code,kind='metar'):
+        metar_pattern = '[A-Z]{4} \d{6}Z [0-9A-Z\s/]+'
+        taf_pattern = 'TAF [A-Z]{4} \d{6}Z[0-9A-Z\s/]+'
         if kind == 'metar':
-            start_index = -1
-            end_index = -1
-            for n,line in enumerate(content):
-                if line.strip() == '<!-- Data starts here -->':
-                    start_index = n
-                if line.strip() == '<!-- Data ends here -->':
-                    end_index = n
-            if end_index - start_index == 1:
+            try:
+                rpt = 'METAR '+re.search(metar_pattern,web_code).group()
+            except AttributeError:
                 rpt = None
-            else:
-                rpt = content[start_index+1].strip()[6:-12]
         elif kind == 'taf':
-            rpt = None
-            for n, line in enumerate(content):
-                try:
-                    line.index(icao+' ')
-                except ValueError:
-                    pass
-                else:
-                    rpt = content[n].strip()[6:-12]
+            try:
+                rpt = re.search(taf_pattern,web_code).group()
+            except AttributeError:
+                rpt = None
 
         return rpt
 
     url = get_url(icao,kind)
-    req = urllib.request.Request(url)
-    header = random_header()
-    req.add_header('User-Agent',header)
-    saved_finished = save_web(req,'./{}.html'.format(kind))
-    if saved_finished:
-        rpt = parse_rpt('./{}.html'.format(kind),kind)
-    else:
-        return None
-    if rpt and kind == 'metar':
-        rpt = ' '.join([kind.upper(),rpt])
-    try:
-        rpt = rpt.replace('<br/>&nbsp;&nbsp;','')
-    except AttributeError:
-        pass
-    os.remove('./{}.html'.format(kind))
+    web_code = get_web_code(url)
+    rpt = parse_rpt(web_code,kind)
+
     return rpt
 
 
@@ -144,7 +116,7 @@ def get_rpts(icaos,kind='metar'):
             print('{0}: ({2}/{3}) {1} missing'.format(datetime.utcnow(),
                                                       icao,n+1,total))
             logger.info(' ({1}/{2}) {0} missing'.format(icao,n+1,total))
-        time.sleep(2)
+        time.sleep(1)
     return rpts
 
 
