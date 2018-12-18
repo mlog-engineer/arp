@@ -29,6 +29,7 @@ ARCHIVE_PATH = config[kind]['archive_path']
 REALTIME_PATH = config[kind]['realtime_path']
 BUFFER_PATH = config[kind]['buffer_path']
 ICAOS = config['ICAOS']
+SOURCE = config['source']
 
 
 def check_dirs(path):
@@ -138,8 +139,8 @@ def main():
                 rpts_init = dict(zip(ICAOS,['']*len(ICAOS)))
                 save_json(rpts_init,pfn_all)
 
-            # 爬取报文内容
-            rpts_download = clt.get_rpts(ICAOS,kind)
+            # 爬取报文内容，使用avt7.com源
+            rpts_download = clt.get_rpts(ICAOS,kind,source=SOURCE)
 
             # 剔除重复报文
             rpts_new = drop_duplication(rpts_download,kind)
@@ -152,7 +153,8 @@ def main():
                 logger.info(' updated updated_{0}s.json'.format(kind))
 
                 update_all(rpts_download,kind)
-                print('{0}: updated all_{1}s.json'.format(datetime.utcnow(),kind))
+                print('{0}: updated all_{1}s.json'.format(datetime.utcnow(),
+                                                        kind))
                 logger.info(' updated all_{0}s.json'.format(kind))
 
                 today = utcnow.strftime('%Y%m%d')
