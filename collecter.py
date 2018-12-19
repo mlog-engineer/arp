@@ -89,7 +89,7 @@ def get_single_rpt(icao,kind='metar',source='awc'):
 
 
     def parse_rpt(web_code,kind='metar',source='awc'):
-        ''''''
+        '''从网页代码中解析出报文数据'''
         if source == 'awc':
             metar_pattern = '[A-Z]{4} \d{6}Z [0-9A-Z\s/]+'
             taf_pattern = 'TAF [A-Z]{4} \d{6}Z[0-9A-Z\s/]+'
