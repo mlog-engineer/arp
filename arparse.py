@@ -50,9 +50,9 @@ field_patterns = {
     # 趋势
     'trend':            r'(TEMPO|BECMG|NOSIG).*?(?= TEMPO| BECMG| NOSIG|=)',
     # 变化起止时间
-    'vartime':         r'(FM|TL|AT)\d{4}',
+    'vartime':          r'(FM|TL|AT)\d{4}',
     # 当前观测
-    'observation':      r'(METAR|SPECI|TAF).+?(?= TEMPO| BECMG| NOSIG)'
+    'observation':      r'(METAR|SPECI|TAF).+?(?= TEMPO| BECMG| NOSIG)',
     # 预报有效时间
     'validtime':        r'\b\d{6}\b',
     # 预报取消标识
@@ -63,7 +63,7 @@ field_patterns = {
     'txtn':             r'TXM?\d+/M?\d+Z\sTNM?\d+/M?\d+Z'
 }
 
-def abstract_field(field, text):
+def abstract_field(field, text, mod='first'):
     '''提取文本字段
 
     输入参数
@@ -112,15 +112,29 @@ def abstract_field(field, text):
     >>> abstract_field('rvr',text)
     'R06/1300U'
     '''
-    match = re.search(field_patterns[field],text)
-    if match:
-        return match.group()
-    else:
-        return None
+    if mod == 'first':
+        match = re.search(field_patterns[field],text)
+        if match:
+            return match.group()
+        else:
+            return None
+    elif mod == 'all':
+        iter = re.finditer(field_patterns[field],text)
+        matchs = []
+        while True:
+            try:
+                match = next(iter)
+            except StopIteration:
+                break
+            else:
+                matchs.append(match.group())
+        return matchs
+
 
 if __name__ == '__main__':
 
-    text = 'METAR ZSNJ 030500Z 24002MPS 330V030 1000 '\
-        'R06/1300U R07/1300N BR FEW005 15/14 Q1017 NOSIG'
+    text = 'TAF AMD ZHHH 192112Z 192106 04003MPS 1200 '\
+            'BR NSC TX15/06Z TN08/21Z BECMG 2223 0700 FG'\
+            ' BECMG 0102 1600 BR BECMG 0304 3000 BR='
 
-    abstract_field('vis',text)
+    abstract_field('trend',text,mod='all')
