@@ -42,9 +42,9 @@ field_patterns = {
     # 天气现象
     'weather':          r'(?<=\s)(?:\+|-|VC)?'\
                             '(MI|BC|PR|DR|BL|SH|TS|FZ)?'\
-                            '(DZ|RA|SN|SG|IC|PL|GR|GS|BR|'\
-                            'FG|FU|VA|DU|SA|HZ|PO|SQ|FC|SS|DS)'\
-                            '(?=\s)',
+                            '(DZ|RA|SN|SG|IC|PL|GR|GS)?'\
+                            '(BR|FG|FU|VA|DU|SA|HZ)?'\
+                            '(PO|SQ|FC|SS|DS)?(?=\s)',
     # 风切变
     'wshear':           r'WS (LDG |TKOF |ALL )?RWY\d+[LRC]?',
     # 趋势
@@ -53,9 +53,15 @@ field_patterns = {
     'vartime':         r'(FM|TL|AT)\d{4}',
     # 当前观测
     'observation':      r'(METAR|SPECI|TAF).+(?= TEMPO| BECMG| NOSIG)'
+    # 预报有效时间
+    'validtime':        r'\b\d{6}\b',
+    # 预报取消标识
+    'cancel':           r'CNL',
+    # 修复预报标识
+    'amend':            r'AMD',
+    # 预报温度
+    'txtn':             r'TXM?\d+/M?\d+Z\sTNM?\d+/M?\d+Z'
 }
-
-'METAR ZPPP 030500Z 23010MPS CAVOK 17/02 Q1022 NOSIG'
 
 def abstract_field(field, text):
     '''提取文本字段
@@ -82,6 +88,13 @@ def abstract_field(field, text):
             'weather'      [天气现象]
             'wshear'       [跑道风切变]
             'vartime'      [趋势变化起止时间]
+            'validtime'    预报有效时间
+            'cancel'       [预报取消标识]
+            'amend'        [预报修正标识]
+            'nsw'          [重要天气现象结束标识]
+            'prob'         [概率预报组]
+            'txtn'         预报气温组
+
     text : `str`
         所要查找的原始报文字符串
 
@@ -91,7 +104,7 @@ def abstract_field(field, text):
 
     示例
     ----
-    >>> text = 'METAR ZSNJ ZSNN 030500Z 24002MPS 330V030 1000 '\
+    >>> text = 'METAR ZSNJ 030500Z 24002MPS 330V030 1000 '\
                'R06/1300U R07/1300N BR FEW005 15/14 Q1017 NOSIG='
     >>> abstract_field('wind',text)
     '24002MPS 330V030'
@@ -99,13 +112,15 @@ def abstract_field(field, text):
     >>> abstract_field('rvr',text)
     'R06/1300U'
     '''
-    try:
-        return re.search(field_patterns[field],text).group()
-    except AttributeError:
+    match = re.search(field_patterns[field],text)
+    if match:
+        return match.group()
+    else:
         return None
 
 if __name__ == '__main__':
-    text = 'METAR ZSNJ ZSNN 030500Z 24002MPS 330V030 1000 '\
-    'R06/1300U R07/1300N BR FEW005 15/14 Q1017 NOSIG'
 
-    abstract_field('rvr',text)
+    text = 'METAR ZSNJ 030500Z 24002MPS 330V030 1000 '\
+        'R06/1300U R07/1300N BR FEW005 15/14 Q1017 NOSIG'
+
+    abstract_field('vis',text)
