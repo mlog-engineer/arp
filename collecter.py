@@ -48,7 +48,7 @@ def get_web_code(url):
     return web_code
 
 
-def get_single_rpt(icao,kind='metar',source='awc'):
+def get_single_rpt(icao,kind='METAR',source='awc'):
     '''按机场ICAO码获取单个机场指定类型的报文
 
     数据来源
@@ -60,7 +60,7 @@ def get_single_rpt(icao,kind='metar',source='awc'):
     icao : `str`
         所要查询的机场ICAO码，如'ZBAA'、'ZUUU'
     kind : `str`
-        报文类型，须在'metar'和'taf'中选择，默认为'metar'
+        报文类型，须在'METAR'和'TAF'中选择，默认为'METAR'
     source : `str`
         数据源，须在'awc'和'avt7'中选择，默认为'awc'
 
@@ -71,7 +71,7 @@ def get_single_rpt(icao,kind='metar',source='awc'):
     示例
     ---
     >>> from collecter import get_single_rpt
-    >>> get_single_rpt('ZBAA','metar')
+    >>> get_single_rpt('ZBAA','METAR')
     'METAR ZBAA 030400Z 03005MPS 340V070 CAVOK 07/M21 Q1026 NOSIG'
     '''
     def get_url(icao,kind,source='awc'):
@@ -88,12 +88,12 @@ def get_single_rpt(icao,kind='metar',source='awc'):
         return url
 
 
-    def parse_rpt(web_code,kind='metar',source='awc'):
+    def parse_rpt(web_code,kind='METAR',source='awc'):
         '''从网页代码中解析出报文数据'''
         if source == 'awc':
             metar_pattern = '[A-Z]{4} \d{6}Z [0-9A-Z\s/]+'
             taf_pattern = 'TAF [A-Z]{4} \d{6}Z[0-9A-Z\s/]+'
-            if kind == 'metar':
+            if kind == 'METAR':
                 try:
                     head_pattern = '<metar_type>[A-Z]+</metar_type>'
                     head_line = re.search(head_pattern,web_code).group()
@@ -101,7 +101,7 @@ def get_single_rpt(icao,kind='metar',source='awc'):
                     rpt = head+' '+re.search(metar_pattern,web_code).group()
                 except AttributeError:
                     rpt = None
-            elif kind == 'taf':
+            elif kind == 'TAF':
                 try:
                     rpt = re.search(taf_pattern,web_code).group()
                 except AttributeError:
@@ -109,12 +109,12 @@ def get_single_rpt(icao,kind='metar',source='awc'):
         elif source == 'avt7':
             metar_pattern = '(METAR|SPECI).+?='
             taf_pattern = 'TAF.+?='
-            if kind == 'metar':
+            if kind == 'METAR':
                 try:
                     rpt = re.search(metar_pattern,web_code).group()
                 except AttributeError:
                     rpt = None
-            elif kind == 'taf':
+            elif kind == 'TAF':
                 try:
                     rpt = re.search(taf_pattern,web_code).group()
                 except AttributeError:
@@ -132,13 +132,13 @@ def get_single_rpt(icao,kind='metar',source='awc'):
     return rpt
 
 
-def get_rpts(icaos,kind='metar',source='awc'):
+def get_rpts(icaos,kind='METAR',source='awc'):
     '''批量获取航空报文
 
     输入参数
     -------
     kind : `str`
-        报文类型，可供选择的选项为:'metar'和'taf'
+        报文类型，可供选择的选项为:'METAR'和'TAF'
 
     返回值
     -----
