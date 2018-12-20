@@ -48,11 +48,11 @@ field_patterns = {
     # 风切变
     'wshear':           r'WS (LDG |TKOF |ALL )?RWY\d+[LRC]?',
     # 趋势
-    'trend':            r'(TEMPO|BECMG|NOSIG).*',
+    'trend':            r'(TEMPO|BECMG|NOSIG).*?(?= TEMPO| BECMG| NOSIG|=)',
     # 变化起止时间
     'vartime':         r'(FM|TL|AT)\d{4}',
     # 当前观测
-    'observation':      r'(METAR|SPECI|TAF).+(?= TEMPO| BECMG| NOSIG)'
+    'observation':      r'(METAR|SPECI|TAF).+?(?= TEMPO| BECMG| NOSIG)'
     # 预报有效时间
     'validtime':        r'\b\d{6}\b',
     # 预报取消标识
