@@ -98,9 +98,16 @@ def abstract_field(field, text, mod='first'):
     text : `str`
         所要查找的原始报文字符串
 
+    mod : `str`
+        匹配模式，可供选择的选项有'first'和'all'。
+            'first'表示匹配第一个，'all'表示匹配所有，默认为'first'。
+
     返回值
     -----
-    `str` | None : 从原始报文中提取出的相应字段，若原始报文中无相应字段则返回None
+    `str` | `list` | None :
+        从原始报文中提取出的相应字段，若mod为'first'则结果返回字符串`str`；
+            若mod为'all'，则返回列表`list`；
+            若原始报文中无相应字段则返回None
 
     示例
     ----
@@ -128,7 +135,10 @@ def abstract_field(field, text, mod='first'):
                 break
             else:
                 matchs.append(match.group())
-        return matchs
+        if matchs:
+            return matchs
+        else:
+            return None
 
 
 if __name__ == '__main__':
@@ -137,4 +147,4 @@ if __name__ == '__main__':
             'BR NSC TX15/06Z TN08/21Z BECMG 2223 0700 FG'\
             ' BECMG 0102 1600 BR BECMG 0304 3000 BR='
 
-    abstract_field('trend',text,mod='all')
+    abstract_field('cavok',text,mod='all')
