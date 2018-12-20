@@ -11,7 +11,9 @@ import os
 
 field_patterns = {
     # 报文类型
-    'kind':             r'(METAR|SPECI|TAF)',
+    'kind':             r'(METAR( COR)?'\
+                            '|SPECI( COR)?|'\
+                            'TAF( AMD( CNL)?| COR)?)',
     # 发报时间
     'time':             r'\d{6}Z',
     # 机场编码
@@ -52,7 +54,7 @@ field_patterns = {
     # 变化起止时间
     'vartime':          r'(FM|TL|AT)\d{4}',
     # 当前观测
-    'observation':      r'(METAR|SPECI|TAF).+?(?= TEMPO| BECMG| NOSIG)',
+    'observ':      r'(METAR|SPECI|TAF).+?(?= TEMPO| BECMG| NOSIG)',
     # 预报有效时间
     'validtime':        r'\b\d{6}\b',
     # 预报取消标识
@@ -70,14 +72,14 @@ def abstract_field(field, text, mod='first'):
     -------
     field : `str`
         报文字段名称，选项如下(中括号内的字段不一定会出现)：
-            'observation'  非趋势全部字段
+            'observ'  非趋势部分全部字段
             'kind'         报文种类
             'cccc'         机场ICAO码
             'time'         发报时间
             'wind'         风向风速 [风速变化]
             'temp'         温度/露点温度
             'QNH'          修正海平面气压
-            'trend'        变化趋势
+            'trend'        单条变化趋势部分全部字段
             'cavok'        [好天气标识]
             'auto'         [自动观测标识]
             'correct'      [修正报标识]
