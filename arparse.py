@@ -264,6 +264,22 @@ def parse_text(text,yyyymm=None):
     else:
         dataset['QNH'] = None
 
+    # 云量/云高
+    cloudstrs = abstract_field('cloud',text,mod='all')
+    if cloudstrs:
+        cloudgroups = []
+        for cloudstr in cloudstrs:
+            if len(cloudstr) == 3:
+                mask = cloudstr[:3]
+                height = None
+            else:
+                mask = cloudstr[:3]
+                height = str(int(cloudstr[3:])*20)
+            cloudgroups.append((mask,height))
+    else:
+        cloudgroups = None
+    dataset['CLOUD'] = cloudgroups
+
     return dataset
 
 
