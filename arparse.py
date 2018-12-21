@@ -248,8 +248,8 @@ def parse_text(text,yyyymm=None):
     tempstr = abstract_field('temp',text)
     if tempstr:
         temp, dewtemp = tempstr.split('/')
-        temp = temp.replace('M','-')
-        dewtemp = dewtemp.replace('M','-')
+        temp = str(int(temp.replace('M','-')))
+        dewtemp = str(int(dewtemp.replace('M','-')))
         dataset['TTd'] = {'temp':temp,'dewtemp':dewtemp,
                                'unit':'degree C'}
     else:
