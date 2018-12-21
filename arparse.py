@@ -229,11 +229,11 @@ def parse_text(text,yyyymm=None):
     visstr = abstract_field('vis',text)
     if visstr:
         if visstr == '9999':
-            dataset['VIS'] = '>10000'
+            dataset['VIS'] = '>10000M'
         elif visstr == '0000':
-            dataset['VIS'] = '<50'
+            dataset['VIS'] = '<50M'
         else:
-            dataset['VIS'] = str(int(visstr))
+            dataset['VIS'] = str(int(visstr))+'M'
     else:
         dataset['VIS'] = None
 
@@ -260,7 +260,7 @@ def parse_text(text,yyyymm=None):
     qnhstr = abstract_field('QNH',text)
     if qnhstr:
         qnh = str(int(qnhstr[1:]))     # 清除0值补位
-        dataset['QNH'] = qnh
+        dataset['QNH'] = qnh+'hPa'
     else:
         dataset['QNH'] = None
 
@@ -274,11 +274,14 @@ def parse_text(text,yyyymm=None):
                 height = None
             else:
                 mask = cloudstr[:3]
-                height = str(int(cloudstr[3:])*20)
+                height = str(int(cloudstr[3:])*20)+'M'
             cloudgroups.append((mask,height))
     else:
         cloudgroups = None
     dataset['CLOUD'] = cloudgroups
+
+    # 天气现象
+    dataset['WEATHER'] = abstract_field('weather',text,mod='all')
 
     return dataset
 
