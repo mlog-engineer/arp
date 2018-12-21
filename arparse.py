@@ -35,7 +35,7 @@ field_patterns = {
     'rvr':              r'R\d{2}[RLC]?/(\d{4}V)?[PM]?'\
                             '\d{4}[UDN]?',
     # 垂直能见度
-    'vvis':                r'VV\d{3}',
+    'vvis':             r'VV\d{3}',
     # 能见度
     'vis':              r'(?<=\s)\d{4}[A-Z]*\b',
     # 云量云高
@@ -54,7 +54,7 @@ field_patterns = {
     # 变化起止时间
     'vartime':          r'(FM|TL|AT)\d{4}',
     # 当前观测
-    'observ':      r'(METAR|SPECI|TAF).+?(?= TEMPO| BECMG| NOSIG)',
+    'observ':           r'(METAR|SPECI|TAF).+?(?= TEMPO| BECMG| NOSIG)',
     # 预报有效时间
     'validtime':        r'\b\d{6}\b',
     # 预报取消标识
@@ -72,14 +72,14 @@ def abstract_field(field, text, mod='first'):
     -------
     field : `str`
         报文字段名称，选项如下(中括号内的字段不一定会出现)：
-            'observ'  非趋势部分全部字段
+            'observ'       非趋势部分全部字段
             'kind'         报文种类
             'cccc'         机场ICAO码
             'time'         发报时间
             'wind'         风向风速 [风速变化]
             'temp'         温度/露点温度
             'QNH'          修正海平面气压
-            'trend'        单条变化趋势部分全部字段
+            'trend'        单个变化趋势部分全部字段
             'cavok'        [好天气标识]
             'auto'         [自动观测标识]
             'correct'      [修正报标识]
@@ -143,10 +143,129 @@ def abstract_field(field, text, mod='first'):
             return None
 
 
+def parse_text(text,yyyymm=None):
+    '''报文文本解析
+
+    输入参数
+    -------
+    text : `str`
+        待解析的报文文本，支持METAR和TAF报文格式
+
+    yyyymm : `str`
+        由于报文不提供年份和月份的信息，因此解析报文时需要用户自己提供该报文的年月信息。
+        该参数的格式为yyyymm，例如2018年12月的格式为'201912'。该参数默认为None，
+        当该参数为None时，输出的时间信息中年和月的信息用0补位
+
+    返回值
+    -----
+    `dict` : 解析后的数据字典
+
+    示例
+    ----
+
+    '''
+    dataset = {}
+    dataset['TYPE'] = abstract_field('kind',text)
+    dataset['ICAO'] = abstract_field('cccc',text)
+
+    # 时间字段
+    timestr = abstract_field('time',text)
+    day = timestr[:2]
+    hour = timestr[2:4]
+    minute = timestr[4:6]
+    if yyyymm:
+        year = yyyymm[:4]
+        month = yyyymm[4:]
+        dataset['TIME'] = '%s-%s-%s %s:%s (UTC)'%(year,month,day,hour,minute)
+    else:
+        dataset['TIME'] = '0000-00-%s %s:%s (UTC)'%(day,hour,minute)
+
+    text0 = abstract_field('observ',text)
+
+    # 风向风速
+    windstr = abstract_field('wind',text0)
+    wind_items = windstr.split(' ')
+    wdws = wind_items[0]
+    if len(wind_items) > 1:
+        wdrg = wind_items[1]
+    else:
+        wdrg = None
+    wd = wdws[:3]
+    ws = wdws[3:5]
+    if wdws[5] == 'G':
+        gust = wdws[6:8]
+        unit = wdws[8:]
+    else:
+        gust = None
+        unit = wdws[5:]
+    if wdrg:
+        dir1 = wdrg[:3]
+        dir2 = wdrg[4:]
+    else:
+        dir1 = dir2 = None
+
+    if unit == 'KT':
+        if ws:
+            ws = str(int(int(ws)*0.5144444))
+        if gust:
+            gust = str(int(int(gust)*0.5144444))
+
+    # 清理0值补位
+    if wd.isdigit():
+        wd = str(int(wd))
+    ws = str(int(ws))
+    if gust:
+        gust = str(int(gust))
+    if dir1 and dir2:
+        dir1 = str(int(dir1))
+        dir2 = str(int(dir2))
+
+    dataset['WIND'] = {'direction':wd,'speed':ws,
+                       'gust':gust,'direction_range':(dir1,dir2),
+                       'speed_unit':'MPS',
+                       'direction_unit':'degree'}
+
+    # 能见度字段
+    visstr = abstract_field('vis',text)
+    if visstr:
+        if visstr == '9999':
+            dataset['VIS'] = '>10000'
+        elif visstr == '0000':
+            dataset['VIS'] = '<50'
+        else:
+            dataset['VIS'] = str(int(visstr))
+    else:
+        dataset['VIS'] = None
+
+    # 好天气（CAVOK）
+    cavok = abstract_field('cavok',text)
+    if cavok:
+        dataset['CAVOK'] = True
+    else:
+        dataset['CAVOK'] = False
+
+    # 温度/露点
+    tempstr = abstract_field('temp',text)
+    if tempstr:
+        temp, dewtemp = tempstr.split('/')
+        temp = temp.replace('M','-')
+        dewtemp = dewtemp.replace('M','-')
+        dataset['TTd'] = {'temp':temp,'dewtemp':dewtemp,
+                               'unit':'degree C'}
+    else:
+        dataset['TTd'] = {'temp':None,'dewtemp':None,
+                           'unit':'degree C'}
+
+    # 修正海平面气压
+    qnhstr = abstract_field('QNH',text)
+    if qnhstr:
+        qnh = str(int(qnhstr[1:]))     # 清除0值补位
+        dataset['QNH'] = qnh
+    else:
+        dataset['QNH'] = None
+
+    return dataset
+
+
 if __name__ == '__main__':
-
-    text = 'TAF AMD ZHHH 192112Z 192106 04003MPS 1200 '\
-            'BR NSC TX15/06Z TN08/21Z BECMG 2223 0700 FG'\
-            ' BECMG 0102 1600 BR BECMG 0304 3000 BR='
-
-    abstract_field('cavok',text,mod='all')
+    pass
